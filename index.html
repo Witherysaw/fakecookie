@@ -4,14 +4,52 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Click Tracking</title>
+    <style>
+        body{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #trackedButton{
+            width: 160px;
+            height: 50px;
+            background-color: aquamarine;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
     <button id="trackedButton">Track Me</button>
 
     <script>
         document.getElementById('trackedButton').addEventListener('click', async () => {
-        
+            const res = await fetch('https://fakecookie-4f410-default-rtdb.asia-southeast1.firebasedatabase.app/count.json')
+            const data = await res.json()
+            const curData = data
+            console.log(curData.clickAccept)
+            const newData = curData.clickAccept + 1  
+            sendDataToFirebase({
+                ...curData,
+                "clickAccept": newData
+            })
+            // console.log(data)
         });
+
+        async function sendDataToFirebase(data) {
+            const updateResponse = await fetch('https://fakecookie-4f410-default-rtdb.asia-southeast1.firebasedatabase.app/count.json',{
+                method: 'PATCH',
+                headers:{
+                    'Content-Type' : 'application/json'
+
+                },
+                body: JSON.stringify(data)
+            });
+            if(!updateResponse.ok){
+                throw new Error("ma ya buu");
+            }
+            const updatedData = await updateResponse.json();
+            console.log("Data now is"+updatedData);
+        }
     </script>
 </body>
 </html>
